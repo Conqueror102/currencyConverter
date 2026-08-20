@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div wire:poll.5s class="space-y-6">
     <!-- Row 1: Interactive 14-Day Activity Chart & Top Pairs Breakdown -->
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
         <!-- Left: 14-Day Volume Chart (7 cols) -->
