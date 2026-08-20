@@ -8,16 +8,17 @@ use App\Livewire\Dashboard\Concerns\WithPlayground;
 use App\Models\ApiKey;
 use App\Models\Currency;
 use App\Models\PageView;
-use Database\Seeders\AnalyticsDataSeeder;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 new class extends Component
 {
     use WithAnalytics;
     use WithApiKeys;
     use WithExchangeRates;
+    use WithPagination;
     use WithPlayground;
 
     #[Url(as: 'tab')]
@@ -39,11 +40,7 @@ new class extends Component
             $this->playgroundKeyId = $firstKey?->id;
         }
 
-        // Auto-seed sample analytics telemetry if empty
         try {
-            if ($this->isAdmin && $this->hasAnalyticsTables && PageView::count() < 10) {
-                (new AnalyticsDataSeeder)->run();
-            }
             if (Currency::count() === 0) {
                 app(RateSyncService::class)->syncCurrencies('frankfurter');
             }

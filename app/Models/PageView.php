@@ -31,7 +31,7 @@ class PageView extends Model
 {
     use HasFactory;
 
-    public $timestamps = false;
+    public const UPDATED_AT = null;
 
     /**
      * @return array<string, string>

@@ -72,26 +72,26 @@
                 @forelse($this->exchangeRates as $rate)
                     <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30">
                         <td class="px-3.5 py-3 font-bold text-zinc-900 dark:text-white">
-                            <span>{{ $rate['base_flag'] }}</span>
-                            <span>{{ $rate['base'] }}</span>
+                            <span>{{ \App\Domain\ExchangeRates\Support\CurrencyHelper::flag($rate->base_currency) }}</span>
+                            <span>{{ $rate->base_currency }}</span>
                             <span class="text-zinc-400">/</span>
-                            <span>{{ $rate['quote_flag'] }}</span>
-                            <span>{{ $rate['quote'] }}</span>
+                            <span>{{ \App\Domain\ExchangeRates\Support\CurrencyHelper::flag($rate->quote_currency) }}</span>
+                            <span>{{ $rate->quote_currency }}</span>
                         </td>
                         <td class="px-3.5 py-3 font-sans">
-                            <span class="rounded px-1.5 py-0.5 text-[10px] font-bold uppercase {{ $rate['market_type'] === 'parallel' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' : 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300' }}">
-                                {{ $rate['market_type'] }}
+                            <span class="rounded px-1.5 py-0.5 text-[10px] font-bold uppercase {{ $rate->market_type === 'parallel' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' : 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300' }}">
+                                {{ $rate->market_type }}
                             </span>
                         </td>
-                        <td class="px-3.5 py-3 font-bold text-zinc-900 dark:text-white">{{ $rate['rate'] }}</td>
-                        <td class="px-3.5 py-3 text-zinc-600 dark:text-zinc-300">{{ $rate['buy_rate'] }}</td>
-                        <td class="px-3.5 py-3 text-zinc-600 dark:text-zinc-300">{{ $rate['sell_rate'] }}</td>
-                        <td class="px-3.5 py-3 font-sans text-zinc-500 text-[11px]">{{ $rate['provider'] }}</td>
-                        <td class="px-3.5 py-3 font-sans text-zinc-400 text-[11px]">{{ $rate['fetched_at'] }}</td>
+                        <td class="px-3.5 py-3 font-bold text-zinc-900 dark:text-white">{{ number_format((float) $rate->rate, 4) }}</td>
+                        <td class="px-3.5 py-3 text-zinc-600 dark:text-zinc-300">{{ $rate->buy_rate ? number_format((float) $rate->buy_rate, 2) : '—' }}</td>
+                        <td class="px-3.5 py-3 text-zinc-600 dark:text-zinc-300">{{ $rate->sell_rate ? number_format((float) $rate->sell_rate, 2) : '—' }}</td>
+                        <td class="px-3.5 py-3 font-sans text-zinc-500 text-[11px]">{{ $rate->provider }}</td>
+                        <td class="px-3.5 py-3 font-sans text-zinc-400 text-[11px]">{{ $rate->fetched_at ? $rate->fetched_at->diffForHumans() : '—' }}</td>
                         <td class="px-3.5 py-3 text-right font-sans">
                             <button
                                 type="button"
-                                wire:click="editRate({{ $rate['id'] }})"
+                                wire:click="editRate({{ $rate->id }})"
                                 class="text-xs font-semibold text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
                             >
                                 Edit
@@ -108,4 +108,16 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Pagination Footer -->
+    @if($this->exchangeRates->hasPages())
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-zinc-100 pt-4 dark:border-zinc-800 text-xs">
+            <div class="text-zinc-500 text-xs">
+                Showing <span class="font-semibold text-zinc-800 dark:text-zinc-200">{{ $this->exchangeRates->firstItem() }}</span> to <span class="font-semibold text-zinc-800 dark:text-zinc-200">{{ $this->exchangeRates->lastItem() }}</span> of <span class="font-semibold text-zinc-800 dark:text-zinc-200">{{ $this->exchangeRates->total() }}</span> exchange rates
+            </div>
+            <div>
+                {{ $this->exchangeRates->links() }}
+            </div>
+        </div>
+    @endif
 </div>

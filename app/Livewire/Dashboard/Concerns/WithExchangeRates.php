@@ -8,6 +8,7 @@ use App\Models\ApiKey;
 use App\Models\Currency;
 use App\Models\ExchangeRate;
 use App\Models\RateSyncRun;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Computed;
 
@@ -18,6 +19,23 @@ trait WithExchangeRates
     public string $baseFilter = 'all';
 
     public string $search = '';
+
+    public int $ratesPerPage = 20;
+
+    public function updatedMarketFilter(): void
+    {
+        $this->resetPage(pageName: 'ratesPage');
+    }
+
+    public function updatedBaseFilter(): void
+    {
+        $this->resetPage(pageName: 'ratesPage');
+    }
+
+    public function updatedSearch(): void
+    {
+        $this->resetPage(pageName: 'ratesPage');
+    }
 
     // Rate Edit Modal
     public ?int $editingRateId = null;
@@ -46,8 +64,8 @@ trait WithExchangeRates
             $res = $syncService->syncLatestRates('frankfurter', 'EUR');
             $count = $res['saved'] ?? 0;
             $this->statusMessage = "Successfully synchronized {$count} official central bank rates from Frankfurter.";
-        } catch (\Throwable) {
-            $this->errorMessage = 'Failed to sync official rates. Please check network connection or rate provider.';
+        } catch (\Throwable $e) {
+            $this->errorMessage = 'Failed to sync official rates: '.$e->getMessage();
         }
     }
 
@@ -67,8 +85,8 @@ trait WithExchangeRates
             $res = $syncService->syncParallelRates('parallel_p2p');
             $count = $res['saved'] ?? 0;
             $this->statusMessage = "Successfully synchronized {$count} parallel/street market rates from AbokiFX and Binance P2P.";
-        } catch (\Throwable) {
-            $this->errorMessage = 'Failed to sync parallel rates. Please check network connection or rate provider.';
+        } catch (\Throwable $e) {
+            $this->errorMessage = 'Failed to sync parallel rates: '.$e->getMessage();
         }
     }
 
@@ -160,12 +178,14 @@ trait WithExchangeRates
     }
 
     /**
-     * Exchange rates query.
+     * Exchange rates query with reactive pagination.
      */
     #[Computed]
-    public function exchangeRates(): array
+    public function exchangeRates(): LengthAwarePaginator
     {
-        $query = ExchangeRate::query()->orderByDesc('fetched_at');
+        $query = ExchangeRate::query()
+            ->orderByRaw("CASE WHEN market_type = 'parallel' THEN 0 ELSE 1 END")
+            ->orderByDesc('fetched_at');
 
         if ($this->marketFilter !== 'all') {
             $query->where('market_type', $this->marketFilter);
@@ -184,19 +204,7 @@ trait WithExchangeRates
             });
         }
 
-        return $query->take(40)->get()->map(fn (ExchangeRate $r) => [
-            'id' => $r->id,
-            'base' => $r->base_currency,
-            'quote' => $r->quote_currency,
-            'base_flag' => CurrencyHelper::flag($r->base_currency),
-            'quote_flag' => CurrencyHelper::flag($r->quote_currency),
-            'market_type' => $r->market_type,
-            'rate' => number_format((float) $r->rate, 4),
-            'buy_rate' => $r->buy_rate ? number_format((float) $r->buy_rate, 2) : '—',
-            'sell_rate' => $r->sell_rate ? number_format((float) $r->sell_rate, 2) : '—',
-            'provider' => $r->provider,
-            'fetched_at' => $r->fetched_at ? $r->fetched_at->diffForHumans() : '—',
-        ])->all();
+        return $query->paginate($this->ratesPerPage, ['*'], 'ratesPage');
     }
 
     /**

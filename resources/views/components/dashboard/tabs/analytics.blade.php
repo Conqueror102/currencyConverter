@@ -186,7 +186,7 @@
     </div>
 
     <!-- Row 3: Interactive Live Activity Streams (Conversions & Page Views) -->
-    <div class="rounded-2xl border border-zinc-200 bg-white p-5 shadow-2xs dark:border-zinc-800 dark:bg-zinc-900 space-y-4">
+    <div wire:poll.10s class="rounded-2xl border border-zinc-200 bg-white p-5 shadow-2xs dark:border-zinc-800 dark:bg-zinc-900 space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-zinc-100 pb-3 dark:border-zinc-800">
             <div>
                 <h3 class="text-sm font-bold text-zinc-900 dark:text-white">Live Real-Time Activity Streams</h3>

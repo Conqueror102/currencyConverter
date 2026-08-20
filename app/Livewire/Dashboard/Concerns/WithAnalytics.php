@@ -227,7 +227,7 @@ trait WithAnalytics
         }
 
         try {
-            return ConversionLog::latest('created_at')->take(12)->get()->map(function (ConversionLog $log) {
+            return ConversionLog::orderByDesc('id')->take(12)->get()->map(function (ConversionLog $log) {
                 return [
                     'id' => $log->id,
                     'source' => $log->source,
@@ -297,7 +297,7 @@ trait WithAnalytics
         }
 
         try {
-            return PageView::latest('created_at')->take(12)->get()->map(function (PageView $view) {
+            return PageView::orderByDesc('id')->take(12)->get()->map(function (PageView $view) {
                 return [
                     'id' => $view->id,
                     'path' => $view->path,

@@ -36,9 +36,6 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-
-        $this->call([
-            AnalyticsDataSeeder::class,
-        ]);
+        // Analytics records are generated strictly from live real-world traffic and conversions.
     }
 }
