@@ -162,12 +162,12 @@ new class extends Component
                     'trade_action' => $this->tradeAction,
                     'amount' => $amt,
                     'rate' => $result->rate,
-                    'result' => $result->convertedAmount,
+                    'result' => $result->result,
                     'ip_address' => request()->ip(),
                     'created_at' => now(),
                 ]);
-            } catch (\Throwable) {
-                // Non-blocking
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Web UI conversion log error: '.$e->getMessage());
             }
 
             return $payload;

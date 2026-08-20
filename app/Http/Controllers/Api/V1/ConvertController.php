@@ -10,6 +10,7 @@ use App\Models\ConversionLog;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class ConvertController extends Controller
@@ -54,12 +55,12 @@ class ConvertController extends Controller
                     'trade_action' => $action,
                     'amount' => $amount,
                     'rate' => $conversion->rate,
-                    'result' => $conversion->convertedAmount,
+                    'result' => $conversion->result,
                     'ip_address' => $request->ip(),
                     'created_at' => now(),
                 ]);
-            } catch (\Throwable) {
-                // Non-blocking
+            } catch (\Throwable $e) {
+                Log::warning('API conversion log error: '.$e->getMessage());
             }
 
             return response()->json($conversion->toArray());
