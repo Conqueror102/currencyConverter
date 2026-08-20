@@ -56,6 +56,7 @@ class ConvertController extends Controller
                     'rate' => $conversion->rate,
                     'result' => $conversion->convertedAmount,
                     'ip_address' => $request->ip(),
+                    'created_at' => now(),
                 ]);
             } catch (\Throwable) {
                 // Non-blocking

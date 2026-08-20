@@ -33,6 +33,8 @@ class PageView extends Model
 
     public const UPDATED_AT = null;
 
+    protected $guarded = [];
+
     /**
      * @return array<string, string>
      */
